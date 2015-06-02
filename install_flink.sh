@@ -25,14 +25,14 @@ FLINK_DIR=${input:-$FLINK_DIR}
 
 
 echo Downloadng Flink binaries...
-cd /root
+#cd /root
 rm -f flink.tgz
 wget -O flink.tgz $FLINK_BINARY_URL
 
 echo extracing ...
 rm -rf $FLINK_DIR && mkdir $FLINK_DIR
 tmp="$FLINK_DIR/$(tar xzfv flink.tgz -C $FLINK_DIR/ | grep "conf/flink-conf.yaml" | sed s:/conf/flink-conf.yaml$::g)"
-mv $FLINK_DIR/$tmp/* $FLINK_DIR && rm -rf $FLINK_DIR/$tmp 
+mv $tmp/* $FLINK_DIR && rm -rf $tmp 
 rm -f flink.tgz
 
 MASTER=`cat $SPARK_DIR-ec2/masters`
