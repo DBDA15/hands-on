@@ -7,6 +7,9 @@ import org.apache.spark.rdd.RDD.rddToPairRDDFunctions
 import de.hpi.fgis.tpch.Q3.LineItem
 import de.hpi.fgis.tpch.Q3.Order
 import org.apache.spark.SparkContext
+import java.nio.file.Paths
+import java.nio.file.Files
+import java.nio.charset.StandardCharsets
 
 /**
  * Spark job solving the Shipping Priority Query (Q3) of the TPC-H benchmark partially w/ explicit type statements.<br/>
@@ -69,11 +72,23 @@ object Q3ExplicitTypes extends App {
     lineItems.join[Unit](orders)
 
   // modify tuple format
-  joined.map[((Double, Int), Unit)]((tuple: (Int, (Double, Unit))) => ((tuple._2._1, tuple._1), Nil))
-    // sort by revenue (desc)
-    .sortByKey(false)
+  val result = joined.map[((Double, Int), Unit)]((tuple: (Int, (Double, Unit))) => ((tuple._2._1, tuple._1), Nil))
+    //// sort by revenue (desc)
+    //.sortByKey(false)
     // cleanup tuple format
     .map[(Int, Double)]((tuple: ((Double, Int), Unit)) => (tuple._1._2, tuple._1._1))
-    // save results
-    .saveAsTextFile(resultFile)
+    
+    
+  // execute program & measure run-time
+  val start = System.currentTimeMillis;
+  // save results
+  result.saveAsTextFile(resultFile);
+  // print
+  print(System.currentTimeMillis-start, context.getExecutorStorageStatus.length)
+
+  def print (time:Long, slaves:Int) : Unit = {
+    val line = slaves+"\t"+time
+    Files.write(Paths.get("runtime."+conf.get("spark.app.name")+".txt"), line.getBytes(StandardCharsets.UTF_8))
+    //println(line);
+  }
 }

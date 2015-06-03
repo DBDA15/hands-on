@@ -4,6 +4,9 @@ import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD.rddToPairRDDFunctions
 import org.apache.spark.rdd.RDD
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.nio.charset.StandardCharsets
 
 /**
  * Spark job solving the Shipping Priority Query (Q3) of the TPC-H benchmark partially.<br/>
@@ -38,7 +41,7 @@ object Q3 extends App {
   // get parameters
   val lineItemFile = args(0)
   val ordersFile = args(1)
-  val resultFile = if (args.length>=3) Some(args(2)) else None
+  val resultFile = args(2)
   val DATE = "1995-03-15"
 
   // initialize spark environment
@@ -82,15 +85,16 @@ object Q3 extends App {
     // cleanup tuple format
     .map(tuple => (tuple._1._2, tuple._1._1))
   
-    // execute program
-    resultFile match {
-      // save results
-      case Some(fileName) => result.saveAsTextFile(fileName);
-      // measure run-time
-      case None => {
-        val start = System.currentTimeMillis;
-        result.count();
-        println(System.currentTimeMillis-start);
-      }
-    }
+  // execute program & measure run-time
+  val start = System.currentTimeMillis;
+  // save results
+  result.saveAsTextFile(resultFile);
+  // print
+  print(System.currentTimeMillis-start, context.getExecutorStorageStatus.length)
+
+  def print (time:Long, slaves:Int) : Unit = {
+    val line = slaves+"\t"+time
+    Files.write(Paths.get("runtime."+conf.get("spark.app.name")+".txt"), line.getBytes(StandardCharsets.UTF_8))
+    //println(line);
+  }
 }

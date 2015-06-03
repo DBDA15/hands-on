@@ -1,6 +1,10 @@
 package de.hpi.fgis.tpch;
 
+import java.io.IOException;
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import org.apache.flink.api.common.functions.FilterFunction;
 import org.apache.flink.api.common.functions.MapFunction;
@@ -105,17 +109,20 @@ public class Q3 {
       joined.count();
     }
 
-    //*
-    // execute program
-    long start = System.currentTimeMillis();
-    env.execute("TPC-H Q3");
-    if(resultFile==null) {
-      // measure run-time
-      System.out.println(System.currentTimeMillis()-start);
-    }
-    /*/
+    /*
     System.out.println(env.getExecutionPlan());
+    /*/
+    // execute program & measure run-time
+    String name = Q3.class.getName();
+    long runtime = env.execute(name).getNetRuntime();
+    // print
+    print(runtime, env.getParallelism(), name);
     //*/
+  }
+  static void print(long time, int slaves, String appName) throws IOException {
+    String line = slaves+"\t"+time;
+    Files.write(Paths.get("runtime."+appName+".txt"), line.getBytes(StandardCharsets.UTF_8));
+    //System.out.println(line);
   }
   
   public static class LineItem extends Tuple5<Integer, Integer, Double, Double, String> implements Serializable {

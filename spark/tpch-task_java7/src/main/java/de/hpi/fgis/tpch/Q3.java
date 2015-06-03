@@ -1,6 +1,10 @@
 package de.hpi.fgis.tpch;
 
+import java.io.IOException;
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Comparator;
 
 import org.apache.spark.SparkConf;
@@ -31,11 +35,11 @@ select l.ORDERKEY, sum(EXTENDEDPRICE*(1-DISCOUNT)) as revenue
 </pre>
  */
 public class Q3 {
-  public static void main(String[] args) {
+  public static void main(String[] args) throws IOException {
     // get job parameters
     final String lineItemFile = args[0];
     final String ordersFile = args[1];
-    final String resultFile = args.length>=3?args[2]:null;
+    final String resultFile = args[2];
     final String DATE = "1995-03-15";
     
     // initialize spark environment
@@ -127,17 +131,18 @@ public class Q3 {
               return t._1;
             }
           });
-      // execute program
-      if(resultFile!=null) {
-        // save results
-        result.saveAsTextFile(resultFile);
-      } else {
-        // measure run-time
-        long start = System.currentTimeMillis();
-        result.count();
-        System.out.println(System.currentTimeMillis()-start);
-      }
+      // execute program & measure run-time
+      long start = System.currentTimeMillis();
+      // save results
+      result.saveAsTextFile(resultFile);
+      // print
+      print(System.currentTimeMillis()-start, context.sc().getExecutorStorageStatus().length, config.get("spark.app.name"));
     }
+  }
+  static void print(long time, int slaves, String appName) throws IOException {
+    String line = slaves+"\t"+time;
+    Files.write(Paths.get("runtime."+appName+".txt"), line.getBytes(StandardCharsets.UTF_8));
+    //System.out.println(line);
   }
   static class LineItem implements Serializable {
     Integer ORDERKEY;
