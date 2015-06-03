@@ -38,7 +38,7 @@ object Q3 extends App {
   // get parameters
   val lineItemFile = args(0)
   val ordersFile = args(1)
-  val resultFile = args(2)
+  val resultFile = if (args.length>=3) Some(args(2)) else None
   val DATE = "1995-03-15"
 
   // initialize spark environment
@@ -76,11 +76,21 @@ object Q3 extends App {
     lineItems.join(orders)
 
   // modify tuple format for sorting
-  joined.map(tuple => ((tuple._2._1, tuple._1), Nil))
-    // sort by revenue (desc)
-    .sortByKey(false)
+  val result = joined.map(tuple => ((tuple._2._1, tuple._1), Nil))
+    //// sort by revenue (desc)
+    //.sortByKey(false)
     // cleanup tuple format
     .map(tuple => (tuple._1._2, tuple._1._1))
-    // save results
-    .saveAsTextFile(resultFile)
+  
+    // execute program
+    resultFile match {
+      // save results
+      case Some(fileName) => result.saveAsTextFile(fileName);
+      // measure run-time
+      case None => {
+        val start = System.currentTimeMillis;
+        result.count();
+        println(System.currentTimeMillis-start);
+      }
+    }
 }
