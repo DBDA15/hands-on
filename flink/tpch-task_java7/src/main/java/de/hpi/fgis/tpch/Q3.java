@@ -34,7 +34,7 @@ public class Q3 {
     // get job parameters
     final String lineItemFile = args[0];
     final String ordersFile = args[1];
-    final String resultFile = args[2];
+    final String resultFile = args.length>=3?args[2]:null;
     final String DATE = "1995-03-15";
 
     // set up the execution environment
@@ -95,15 +95,24 @@ public class Q3 {
             return value.f0;
           }
         })
-        // sort by revenue (desc) <-- only partition-wise
-        .sortPartition(1, org.apache.flink.api.common.operators.Order.DESCENDING)
+        //// sort by revenue (desc) <-- only partition-wise
+        //.sortPartition(1, org.apache.flink.api.common.operators.Order.DESCENDING)
         ;
     // save results
-    joined.writeAsCsv(resultFile, "\n", "\t");
+    if(resultFile!=null) {
+      joined.writeAsCsv(resultFile, "\n", "\t");
+    } else {
+      joined.count();
+    }
 
-    /*
+    //*
     // execute program
+    long start = System.currentTimeMillis();
     env.execute("TPC-H Q3");
+    if(resultFile==null) {
+      // measure run-time
+      System.out.println(System.currentTimeMillis()-start);
+    }
     /*/
     System.out.println(env.getExecutionPlan());
     //*/

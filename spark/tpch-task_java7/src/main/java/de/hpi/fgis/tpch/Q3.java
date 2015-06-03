@@ -35,7 +35,7 @@ public class Q3 {
     // get job parameters
     final String lineItemFile = args[0];
     final String ordersFile = args[1];
-    final String resultFile = args[2];
+    final String resultFile = args.length>=3?args[2]:null;
     final String DATE = "1995-03-15";
     
     // initialize spark environment
@@ -112,23 +112,31 @@ public class Q3 {
           lineItemRevenue.join(ordersIds);
       
       // modify tuple format
-      joined.mapToPair(
+      JavaPairRDD<Integer, Double> result = joined.mapToPair(
           new PairFunction<Tuple2<Integer,Tuple2<Double,Void>>, Tuple2<Integer, Double>, Void>() {
             public Tuple2<Tuple2<Integer, Double>, Void> call(Tuple2<Integer, Tuple2<Double, Void>> t) {
               return new Tuple2<Tuple2<Integer, Double>, Void>(new Tuple2<Integer, Double>(t._1, t._2._1),null);
             }
           })
-        // sort by revenue (desc)
-        .sortByKey(new RevenueComp(), false)
+        //// sort by revenue (desc)
+        //.sortByKey(new RevenueComp(), false)
         // cleanup tuple format
         .mapToPair(
           new PairFunction<Tuple2<Tuple2<Integer, Double>, Void>, Integer, Double>() {
             public Tuple2<Integer, Double> call(Tuple2<Tuple2<Integer, Double>, Void> t) {
               return t._1;
             }
-          })
+          });
+      // execute program
+      if(resultFile!=null) {
         // save results
-        .saveAsTextFile(resultFile);
+        result.saveAsTextFile(resultFile);
+      } else {
+        // measure run-time
+        long start = System.currentTimeMillis();
+        result.count();
+        System.out.println(System.currentTimeMillis()-start);
+      }
     }
   }
   static class LineItem implements Serializable {
