@@ -8,6 +8,7 @@ import org.apache.flink.api.java.DataSet;
 import org.apache.flink.api.java.ExecutionEnvironment;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.tuple.Tuple5;
+import org.apache.flink.core.fs.FileSystem.WriteMode;
 
 /**
  * Flink job solving the Shipping Priority Query (Q3) of the TPC-H benchmark partially.<br/>
@@ -99,9 +100,9 @@ public class Q3 {
         .sortPartition(1, org.apache.flink.api.common.operators.Order.DESCENDING)
         ;
     // save results
-    joined.writeAsCsv(resultFile, "\n", "\t");
+    joined.writeAsCsv(resultFile, "\n", "\t", WriteMode.OVERWRITE);
 
-    /*
+    //*
     // execute program
     env.execute("TPC-H Q3");
     /*/
