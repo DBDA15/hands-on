@@ -87,7 +87,7 @@ object Q3ExplicitTypes extends App {
   print(System.currentTimeMillis-start, context.getExecutorStorageStatus.length)
 
   def print (time:Long, slaves:Int) : Unit = {
-    val line = slaves+"\t"+time
+    val line = slaves+"\t"+time+"\n"
     Files.write(Paths.get("runtime."+conf.get("spark.app.name")+".txt"), line.getBytes(StandardCharsets.UTF_8))
     //println(line);
   }

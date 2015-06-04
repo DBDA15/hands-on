@@ -140,7 +140,7 @@ public class Q3 {
     }
   }
   static void print(long time, int slaves, String appName) throws IOException {
-    String line = slaves+"\t"+time;
+    String line = slaves+"\t"+time+"\n";
     Files.write(Paths.get("runtime."+appName+".txt"), line.getBytes(StandardCharsets.UTF_8));
     //System.out.println(line);
   }
