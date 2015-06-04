@@ -5,6 +5,8 @@ import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.util.Arrays;
 import java.util.Comparator;
 
 import org.apache.spark.SparkConf;
@@ -136,12 +138,12 @@ public class Q3 {
       // save results
       result.saveAsTextFile(resultFile);
       // print
-      print(System.currentTimeMillis()-start, context.sc().getExecutorStorageStatus().length, config.get("spark.app.name"));
+      print(System.currentTimeMillis()-start, config.get("spark.cores.max"), context.sc().getExecutorStorageStatus().length, config.get("spark.app.name"));
     }
   }
-  static void print(long time, int slaves, String appName) throws IOException {
-    String line = slaves+"\t"+time+"\n";
-    Files.write(Paths.get("runtime."+appName+".txt"), line.getBytes(StandardCharsets.UTF_8));
+  static void print(long time, String cores, int slaves, String appName) throws IOException {
+    String line = slaves+"\t"+cores+"\t"+time+"\t"+time;
+    Files.write(Paths.get("runtime."+appName+".txt"), Arrays.asList(line), StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
     //System.out.println(line);
   }
   static class LineItem implements Serializable {

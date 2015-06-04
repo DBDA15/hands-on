@@ -7,6 +7,8 @@ import org.apache.spark.rdd.RDD
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.charset.StandardCharsets
+import java.util.Arrays
+import java.nio.file.StandardOpenOption
 
 /**
  * Spark job solving the Shipping Priority Query (Q3) of the TPC-H benchmark partially.<br/>
@@ -90,11 +92,11 @@ object Q3 extends App {
   // save results
   result.saveAsTextFile(resultFile);
   // print
-  print(System.currentTimeMillis-start, context.getExecutorStorageStatus.length)
+  print(System.currentTimeMillis-start, conf.get("spark.cores.max").toInt, context.getExecutorStorageStatus.length)
 
-  def print (time:Long, slaves:Int) : Unit = {
-    val line = slaves+"\t"+time+"\n"
-    Files.write(Paths.get("runtime."+conf.get("spark.app.name")+".txt"), line.getBytes(StandardCharsets.UTF_8))
+  def print (time:Long, cores:Int, slaves:Int) : Unit = {
+    val line = slaves+"\t"+cores+"\t"+time+"\t"+time
+    Files.write(Paths.get("runtime."+conf.get("spark.app.name")+".txt"), Arrays.asList(line), StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
     //println(line);
   }
 }

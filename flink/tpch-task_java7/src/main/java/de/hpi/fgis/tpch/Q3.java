@@ -5,13 +5,17 @@ import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.util.Arrays;
 
+import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.common.functions.FilterFunction;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.java.DataSet;
 import org.apache.flink.api.java.ExecutionEnvironment;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.tuple.Tuple5;
+import org.apache.flink.core.fs.FileSystem.WriteMode;
 
 /**
  * Flink job solving the Shipping Priority Query (Q3) of the TPC-H benchmark partially.<br/>
@@ -104,7 +108,7 @@ public class Q3 {
         ;
     // save results
     if(resultFile!=null) {
-      joined.writeAsCsv(resultFile, "\n", "\t");
+      joined.writeAsCsv(resultFile, "\n", "\t", WriteMode.OVERWRITE);
     } else {
       joined.count();
     }
@@ -114,14 +118,17 @@ public class Q3 {
     /*/
     // execute program & measure run-time
     String name = Q3.class.getName();
-    long runtime = env.execute(name).getNetRuntime();
+    long start = System.currentTimeMillis();
+    JobExecutionResult result = env.execute(name);
+    long runtime = System.currentTimeMillis()-start;
+    long netRuntime = result.getNetRuntime();
     // print
-    print(runtime, env.getParallelism(), name);
+    print(runtime, netRuntime, env.getParallelism(), -1, name);
     //*/
   }
-  static void print(long time, int slaves, String appName) throws IOException {
-    String line = slaves+"\t"+time+"\n";
-    Files.write(Paths.get("runtime."+appName+".txt"), line.getBytes(StandardCharsets.UTF_8));
+  static void print(long time, long netTime, int cores, int slaves, String appName) throws IOException {
+    String line = slaves+"\t"+cores+"\t"+time+"\t"+netTime;
+    Files.write(Paths.get("runtime."+appName+".txt"), Arrays.asList(line), StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
     //System.out.println(line);
   }
   
