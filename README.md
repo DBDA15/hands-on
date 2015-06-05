@@ -29,59 +29,67 @@ To run a EC2  Apache Spark/Flink cluster on the follwing values are required:
 
 
 To initiaize and configure an EC2 cluster from a Unix shell (such as bash), proceed as follows:
-
  1. Set the AWS Access Key ID and Secret Access Key for the authentification
-``` sh
-export AWS_ACCESS_KEY_ID=[accessKeyID]; export AWS_SECRET_ACCESS_KEY=[secretAccessKey]
-```
+    ``` sh
+    export AWS_ACCESS_KEY_ID=[accessKeyID]; export AWS_SECRET_ACCESS_KEY=[secretAccessKey]
+    ```
+
  1. Initialize new AWS cluster using spark-ec2 script (Note, this comand start a preconfigured cluster based on the Hadoop1 stack. To use the Hadoop2 sack apply the addiional parmeter `--hadoop-major-version=2` and adapt the `install_flink.sh` script accordingly)
-``` sh
-~/spark/ec2/spark-ec2 -k [username] -i [pathToPemFile] --region=[region] -s [clusterSize] --instance-type=[instaneType] --copy-aws-credentials launch [clusterName]
-```
+    ``` sh
+    ~/spark/ec2/spark-ec2 -k [username] -i [pathToPemFile] --region=[region] -s [clusterSize] --instance-type=[instaneType] --copy-aws-credentials launch [clusterName]
+    ```
  wait some minutes until the following messae occurs
-```
-Spark standalone cluster started at http://[master]:8080
-```
+    ```
+    Spark standalone cluster started at http://[master]:8080
+    ```
  keep the addrss of the master node (`[master]`)
+
  1. Connect to the EC2 master node
-``` sh
-ssh -i [pathToPemFile] root@[master]
-```
+    ``` sh
+    ssh -i [pathToPemFile] root@[master]
+    ```
+
  1. Start sreen sesson on the master (optional)
-``` sh
-screen
-```
+    ``` sh
+    screen
+    ```
+
  1. Clone repository and install Apache Maven and Flink
-``` sh
-git clone -b ec2 https://github.com/DBDA15/hands-on.git
-. hands-on/install_mvn.sh
-. hands-on/install_flink.sh
-```
+    ``` sh
+    git clone -b ec2 https://github.com/DBDA15/hands-on.git
+    . hands-on/install_mvn.sh
+    . hands-on/install_flink.sh
+    ```
 
 ## Running experiments
+To run the experiments set `[cores]` to the number of executor cores to be used
+
  1. Distribute input files
-``` sh
-$HADOOP_DIR/bin/start-all.sh
-$HADOOP_DIR/bin/hadoop distcp s3n://dbda-hands-on/data/lineitem.tbl s3n://dbda-hands-on/data/orders.tbl s3n://dbda-hands-on/data/lineitem.small.tbl s3n://dbda-hands-on/data/orders.small.tbl hdfs://$MASTER:9000/
-$HADOOP_DIR/bin/stop-all.sh
-```
+    ``` sh
+    $HADOOP_DIR/bin/start-all.sh
+    $HADOOP_DIR/bin/hadoop distcp s3n://dbda-hands-on/data/lineitem.tbl s3n://dbda-hands-on/data/orders.tbl
+    s3n://dbda-hands-on/data/lineitem.small.tbl s3n://dbda-hands-on/data/orders.small.tbl hdfs://$MASTER:9000/
+    $HADOOP_DIR/bin/stop-all.sh
+    ```
+
  1. Start Apache Spark
-``` sh
-init-spark.sh
-```
+    ``` sh
+    init-spark.sh
+    ```
 Run the experiment
-``` sh
-cd hands-on/spark/tpch-task_java7/
-mvn clean install
-$SPARK_DIR/bin/spark-submit --class de.hpi.fgis.tpch.Q3 --master spark://$MASTER:7077 target/tpch-task_java7-0.0.1-SNAPSHOT.jar hdfs://$MASTER:9000/lineitem.tbl hdfs://$MASTER:9000/orders.tbl
-```
+    ``` sh
+    cd hands-on/spark/tpch-task_java7/
+    mvn clean install
+    $SPARK_DIR/bin/spark-submit --total-executor-cores [cores] --class de.hpi.fgis.tpch.Q3 --master spark://$MASTER:7077 target/tpch-task_java7-0.0.1-SNAPSHOT.jar hdfs://$MASTER:9000/lineitem.tbl hdfs://$MASTER:9000/orders.tbl hdfs://$MASTER:9000/spark/hands-on
+    ```
+
  1. Start Apache Flink
-``` sh
-init-flink.sh
-```
+    ``` sh
+    init-flink.sh
+    ```
 Run the experiment
-``` sh
-cd hands-on/flink/tpch-task_java7/
-mvn clean install
-$FLINK_DIR/bin/flink run --class de.hpi.fgis.tpch.Q3 -m $MASTER:6123 target/tpch-task_java7-0.0.1-SNAPSHOT.jar hdfs://$MASTER:9000/lineitem.tbl hdfs://$MASTER:9000/orders.tbl
-```
+    ``` sh
+    cd hands-on/flink/tpch-task_java7/
+    mvn clean install
+    $FLINK_DIR/bin/flink run --parallelism [cores] --class de.hpi.fgis.tpch.Q3 -m $MASTER:6123 target/tpch-task_java7-0.0.1-SNAPSHOT.jar hdfs://$MASTER:9000/lineitem.tbl hdfs://$MASTER:9000/orders.tbl hdfs://$MASTER:9000/flink/hands-on
+    ```
