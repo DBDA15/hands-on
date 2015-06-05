@@ -4,6 +4,7 @@ import it.unimi.dsi.fastutil.ints.IntRBTreeSet;
 import it.unimi.dsi.fastutil.ints.IntSortedSet;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.functions.RichGroupReduceFunction;
+import org.apache.flink.api.java.functions.FunctionAnnotation;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.util.Collector;
 
@@ -14,6 +15,7 @@ import org.apache.flink.util.Collector;
  * @since 05.06.2015
  */
 @RichGroupReduceFunction.Combinable
+@FunctionAnnotation.ConstantFields("1")
 public class MergeCells extends RichGroupReduceFunction<Tuple2<int[], String>, Tuple2<int[], String>> {
 
 	private final IntSortedSet aggregator = new IntRBTreeSet();

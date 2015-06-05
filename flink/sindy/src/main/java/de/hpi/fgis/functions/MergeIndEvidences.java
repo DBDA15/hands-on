@@ -5,6 +5,7 @@ import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import org.apache.flink.api.common.functions.RichGroupReduceFunction;
+import org.apache.flink.api.java.functions.FunctionAnnotation;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.util.Collector;
 
@@ -15,6 +16,7 @@ import org.apache.flink.util.Collector;
  * @since 05.06.2015
  */
 @RichGroupReduceFunction.Combinable
+@FunctionAnnotation.ConstantFields("0")
 public class MergeIndEvidences extends RichGroupReduceFunction<Tuple2<Integer, int[]>, Tuple2<Integer, int[]>> {
 
 	private final IntSet aggregator = new IntOpenHashSet();

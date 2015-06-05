@@ -9,8 +9,12 @@ import de.hpi.fgis.functions.CreateIndEvidences;
 import de.hpi.fgis.functions.FilterEmptyIndSets;
 import de.hpi.fgis.functions.MergeCells;
 import de.hpi.fgis.functions.MergeIndEvidences;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import org.apache.flink.api.java.DataSet;
 import org.apache.flink.api.java.ExecutionEnvironment;
+import org.apache.flink.api.java.io.RemoteCollectorConsumer;
+import org.apache.flink.api.java.io.RemoteCollectorImpl;
 import org.apache.flink.api.java.operators.DataSource;
 import org.apache.flink.api.java.tuple.Tuple1;
 import org.apache.flink.api.java.tuple.Tuple2;
@@ -24,9 +28,16 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+/** Implementation of the SINDY algorithm for scalable IND discovery. */
 public class Sindy {
 
+	private static final int ATTRIBUTE_INDEX_OFFSET = 1000;
+
+	/** Stores execution parameters of this job. */
 	private final Parameters parameters;
+
+	/** Maps attribute indexes to files. */
+	private Int2ObjectMap<String> filesByAttributeIndexOffset;
 
 	public static void main(String[] args) throws Exception {
 		Sindy sindy = new Sindy(args);
@@ -42,21 +53,27 @@ public class Sindy {
 		final ExecutionEnvironment env = createExecutionEnvironment();
 
 		// Read and parse the input files.
+		this.filesByAttributeIndexOffset = new Int2ObjectOpenHashMap<>();
 		Collection<String> inputPaths = loadInputPaths();
 		DataSet<Tuple2<int[], String>> cells = null;
 		int cellIndexOffset = 0;
 		for (String path : inputPaths) {
+
 			DataSource<String> lines = env.readTextFile(path).name("Load " + path);
+
 			DataSet<Tuple2<int[], String>> fileCells = lines
 					.flatMap(new CreateCells(';', cellIndexOffset))
 					.name("Parse " + path);
+
+			this.filesByAttributeIndexOffset.put(cellIndexOffset, path);
+			cellIndexOffset += ATTRIBUTE_INDEX_OFFSET;
+
 			if (cells == null) {
 				cells = fileCells;
 			} else {
 				cells = cells.union(fileCells);
 			}
 
-			cellIndexOffset += 1000;
 		}
 
 		// Join the cells and keep the attribute groups.
@@ -75,14 +92,34 @@ public class Sindy {
 				.filter(new FilterEmptyIndSets())
 				.name("Filter empty IND sets");
 
-		inds.print();
+		// Have the INDs sent to the drivers and print them to the stdout.
+		collectAndPrintInds(inds);
 
-		// Execute the job.
+		// Trigger the job execution and measure the exeuction time.
 		long startTime = System.currentTimeMillis();
 		env.execute("SINDY");
+		RemoteCollectorImpl.shutdownAll();
 		long endTime = System.currentTimeMillis();
-
 		System.out.format("Exection finished after %.3f s.", (endTime - startTime) / 1000d);
+	}
+
+	private void collectAndPrintInds(DataSet<Tuple2<Integer, int[]>> indSets) {
+		RemoteCollectorImpl.collectLocal(indSets, new RemoteCollectorConsumer<Tuple2<Integer, int[]>>() {
+			@Override
+			public void collect(Tuple2<Integer, int[]> indSet) {
+				for (int referencedAttributeIndex : indSet.f1) {
+					System.out.format("%s < %s\n", makeAttributeIndexHumanReadable(indSet.f0),
+							makeAttributeIndexHumanReadable(referencedAttributeIndex));
+				}
+			}
+		});
+	}
+
+	/** Converts an attribute index into the form file[index]. */
+	private String makeAttributeIndexHumanReadable(int attributeIndex) {
+		int fileLocalIndex = attributeIndex % ATTRIBUTE_INDEX_OFFSET;
+		int fileAttributeIndex = attributeIndex - fileLocalIndex;
+		return String.format("%s[d]", this.filesByAttributeIndexOffset.get(fileAttributeIndex), fileLocalIndex);
 	}
 
 	/**

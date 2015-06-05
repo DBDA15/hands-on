@@ -6,6 +6,7 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import org.apache.flink.api.common.functions.FilterFunction;
 import org.apache.flink.api.common.functions.RichGroupReduceFunction;
+import org.apache.flink.api.java.functions.FunctionAnnotation;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.util.Collector;
 
@@ -15,7 +16,8 @@ import org.apache.flink.util.Collector;
  * @author sebastian.kruse
  * @since 05.06.2015
  */
-@RichGroupReduceFunction.Combinable
+@FunctionAnnotation.ReadFields("1")
+@FunctionAnnotation.ConstantFields({"0", "1"})
 public class FilterEmptyIndSets implements FilterFunction<Tuple2<Integer, int[]>> {
 
 	@Override
