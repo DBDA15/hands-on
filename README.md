@@ -18,8 +18,8 @@ select l.ORDERKEY, sum(EXTENDEDPRICE*(1-DISCOUNT)) as revenue
 ```
 
 ## EC2 setup
-The folloing steps help to initiaize an AWS EC2 cluster w/ installtions of Apache Spark and Apache Flink i Standalone mode.
-To run a EC2  Apache Spark/Flink cluster on the follwing values are required:
+The folloing steps help to initialize an AWS EC2 cluster w/ installations of Apache Spark and Apache Flink in Standalone mode.
+To run a EC2 Apache Spark/Flink cluster, the follwing values are required:
  1. `[accessKeyID]` and `[secretAccessKey]`: Access keys used to sign programmatic requests to AWS ([see AWS Documentation](http://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSGettingStartedGuide/AWSCredentials.html))
  1. `[username]` and `[pathToPemFile]`: Username and private key file to connect to AWS EC2 instances ([see AWS Documentation](http://docs.aws.amazon.com/gettingstarted/latest/wah/getting-started-prereq.html#create-a-key-pair))
  1. `[region]`: AWS region, e.g., eu-west-1 ([see AWS Documentation](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html))
@@ -34,22 +34,22 @@ To initiaize and configure an EC2 cluster from a Unix shell (such as bash), proc
     export AWS_ACCESS_KEY_ID=[accessKeyID]; export AWS_SECRET_ACCESS_KEY=[secretAccessKey]
     ```
 
- 1. Initialize new AWS cluster using spark-ec2 script (Note, this comand start a preconfigured cluster based on the Hadoop1 stack. To use the Hadoop2 sack apply the addiional parmeter `--hadoop-major-version=2` and adapt the `install_flink.sh` script accordingly)
+ 1. Initialize new AWS cluster using spark-ec2 script (Note, this comand start a preconfigured cluster based on the Hadoop1 stack. To use the Hadoop2 stack apply the addiional parmeter `--hadoop-major-version=2` and adapt the `install_flink.sh` script accordingly (own responsibility).
     ``` sh
     ~/spark/ec2/spark-ec2 -k [username] -i [pathToPemFile] --region=[region] -s [clusterSize] --instance-type=[instaneType] --copy-aws-credentials launch [clusterName]
     ```
- wait some minutes until the following messae occurs
+ wait some minutes until the following message occurs
     ```
     Spark standalone cluster started at http://[master]:8080
     ```
- keep the addrss of the master node (`[master]`)
+ keep the address of the master node (`[master]`)
 
  1. Connect to the EC2 master node
     ``` sh
     ssh -i [pathToPemFile] root@[master]
     ```
 
- 1. Start sreen sesson on the master (optional)
+ 1. Start sreen session on the master (optional)
     ``` sh
     screen
     ```
