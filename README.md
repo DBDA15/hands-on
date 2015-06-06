@@ -34,7 +34,7 @@ To initiaize and configure an EC2 cluster from a Unix shell (such as bash), proc
     export AWS_ACCESS_KEY_ID=[accessKeyID]; export AWS_SECRET_ACCESS_KEY=[secretAccessKey]
     ```
 
- 1. Initialize new AWS cluster using spark-ec2 script (Note, this comand start a preconfigured cluster based on the Hadoop1 stack. To use the Hadoop2 stack apply the addiional parmeter `--hadoop-major-version=2` and adapt the `install_flink.sh` script accordingly (own responsibility).
+ 1. Initialize new AWS cluster using spark-ec2 script found in the spark binary package (extracted to `~/spark`). Note, this command starts a preconfigured cluster based on the Hadoop1 stack. To use the Hadoop2 stack apply the addiional parmeter `--hadoop-major-version=2` and adapt the `install_flink.sh` script accordingly (own responsibility).
     ``` sh
     ~/spark/ec2/spark-ec2 -k [username] -i [pathToPemFile] --region=[region] -s [clusterSize] --instance-type=[instaneType] --copy-aws-credentials launch [clusterName]
     ```
@@ -59,6 +59,7 @@ To initiaize and configure an EC2 cluster from a Unix shell (such as bash), proc
     git clone -b ec2 https://github.com/DBDA15/hands-on.git
     . hands-on/install_mvn.sh
     . hands-on/install_flink.sh
+    . hands-on/tag_cluster.sh
     ```
 
 ## Running experiments
@@ -93,3 +94,8 @@ Run the experiment
     mvn clean install
     $FLINK_DIR/bin/flink run --parallelism [cores] --class de.hpi.fgis.tpch.Q3 -m $MASTER:6123 target/tpch-task_java7-0.0.1-SNAPSHOT.jar hdfs://$MASTER:9000/lineitem.tbl hdfs://$MASTER:9000/orders.tbl hdfs://$MASTER:9000/flink/hands-on
     ```
+
+## Shutdown cluster
+``` sh
+~/spark/ec2/spark-ec2 --region=[region] destroy [clusterName]
+```
