@@ -101,10 +101,13 @@ public class Sindy {
 
 		// Trigger the job execution and measure the exeuction time.
 		long startTime = System.currentTimeMillis();
-		env.execute("SINDY");
-		RemoteCollectorImpl.shutdownAll();
+        try {
+            env.execute("SINDY");
+        } finally {
+            RemoteCollectorImpl.shutdownAll();
+        }
 		long endTime = System.currentTimeMillis();
-		System.out.format("Exection finished after %.3f s.", (endTime - startTime) / 1000d);
+		System.out.format("Exection finished after %.3f s.\n", (endTime - startTime) / 1000d);
 	}
 
 	private void collectAndPrintInds(DataSet<Tuple2<Integer, int[]>> indSets) {
@@ -123,14 +126,17 @@ public class Sindy {
 	private String makeAttributeIndexHumanReadable(int attributeIndex) {
 		int fileLocalIndex = attributeIndex % ATTRIBUTE_INDEX_OFFSET;
 		int fileAttributeIndex = attributeIndex - fileLocalIndex;
-		return String.format("%s[d]", this.filesByAttributeIndexOffset.get(fileAttributeIndex), fileLocalIndex);
+		return String.format("%s[%d]", this.filesByAttributeIndexOffset.get(fileAttributeIndex), fileLocalIndex);
 	}
 
 	/**
 	 * Creates a execution environment as specified by the parameters.
 	 */
 	private ExecutionEnvironment createExecutionEnvironment() {
-		if (this.parameters.executor != null) {
+        ExecutionEnvironment executionEnvironment;
+
+        if (this.parameters.executor != null) {
+            // If a remote executor is explicitly specified, connect.
 			final String[] hostAndPort = this.parameters.executor.split(":");
 			final String host = hostAndPort[0];
 			final int port = Integer.parseInt(hostAndPort[1]);
@@ -139,10 +145,19 @@ public class Sindy {
 			}
 			final String[] jars = new String[this.parameters.jars.size()];
 			this.parameters.jars.toArray(jars);
-			return ExecutionEnvironment.createRemoteEnvironment(host, port, jars);
-		}
+			executionEnvironment = ExecutionEnvironment.createRemoteEnvironment(host, port, jars);
 
-		return ExecutionEnvironment.getExecutionEnvironment();
+		} else {
+            // Otherwise, create a default exection environment.
+            executionEnvironment = ExecutionEnvironment.getExecutionEnvironment();
+        }
+
+        // Set the default parallelism explicitly, if requested.
+        if (this.parameters.parallelism != -1) {
+            executionEnvironment.setDegreeOfParallelism(this.parameters.parallelism);
+        }
+
+        return executionEnvironment;
 	}
 
 	/**
@@ -213,7 +228,7 @@ public class Sindy {
 			}
 		}
 
-		@Parameter(description = "input CSV files")
+		@Parameter(description = "input CSV files", required = true)
 		public List<String> inputFiles = new ArrayList<String>();
 
 		@Parameter(names = "--parallelism", description = "degree of parallelism for the job execution")

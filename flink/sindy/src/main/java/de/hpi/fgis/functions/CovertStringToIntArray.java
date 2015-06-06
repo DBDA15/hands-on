@@ -10,7 +10,7 @@ import sun.misc.BASE64Decoder;
  *
  * Created by basti on 6/6/15.
  */
-public class CovertStringToIntArray extends RichMapFunction<String, Tuple1<int[]>> {
+public class CovertStringToIntArray extends RichMapFunction<Tuple1<String>, Tuple1<int[]>> {
 
     /** Loaded after deployment to avoid serialization issues. */
     private BASE64Decoder base64Decoder;
@@ -24,9 +24,9 @@ public class CovertStringToIntArray extends RichMapFunction<String, Tuple1<int[]
     }
 
     @Override
-    public Tuple1<int[]> map(String base64) throws Exception {
+    public Tuple1<int[]> map(Tuple1<String> base64) throws Exception {
         // Decode Base64.
-        byte[] bytes = this.base64Decoder.decodeBuffer(base64);
+        byte[] bytes = this.base64Decoder.decodeBuffer(base64.f0);
 
         // Transform byte array into an int array.
         if ((bytes.length & 0x2) != 0) {

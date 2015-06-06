@@ -11,7 +11,7 @@ import sun.misc.BASE64Encoder;
  *
  * Created by basti on 6/6/15.
  */
-public class ConvertIntArrayToString extends RichMapFunction<Tuple1<int[]>, String> {
+public class ConvertIntArrayToString extends RichMapFunction<Tuple1<int[]>, Tuple1<String>> {
 
     /** Loaded after deployment to avoid serialization issues. */
     private BASE64Encoder base64Encoder;
@@ -24,7 +24,7 @@ public class ConvertIntArrayToString extends RichMapFunction<Tuple1<int[]>, Stri
     }
 
     @Override
-    public String map(Tuple1<int[]> tuple1) throws Exception {
+    public Tuple1<String> map(Tuple1<int[]> tuple1) throws Exception {
         // Transform int array into byte array.
         int[] ints = tuple1.f0;
         byte[] bytes = new byte[ints.length * 4];
@@ -36,6 +36,6 @@ public class ConvertIntArrayToString extends RichMapFunction<Tuple1<int[]>, Stri
         }
 
         // Encode byte array as Base 64.
-        return this.base64Encoder.encode(bytes);
+        return new Tuple1<>(this.base64Encoder.encode(bytes));
     }
 }
