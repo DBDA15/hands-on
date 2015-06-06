@@ -83,6 +83,7 @@ under the License.
                 <configuration>
                     <descriptors>
                         <descriptor>src/assembly/flink-fat-jar.xml</descriptor>
+                        <descriptor>src/assembly/gather-dependencies.xml</descriptor>
                     </descriptors>
                     <archive>
                         <manifest>
