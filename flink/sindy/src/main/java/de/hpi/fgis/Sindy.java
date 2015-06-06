@@ -4,11 +4,7 @@ package de.hpi.fgis;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
-import de.hpi.fgis.functions.CreateCells;
-import de.hpi.fgis.functions.CreateIndEvidences;
-import de.hpi.fgis.functions.FilterEmptyIndSets;
-import de.hpi.fgis.functions.MergeCells;
-import de.hpi.fgis.functions.MergeIndEvidences;
+import de.hpi.fgis.functions.*;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import org.apache.flink.api.java.DataSet;
@@ -81,6 +77,14 @@ public class Sindy {
 				.groupBy(1).reduceGroup(new MergeCells())
 				.name("Merge cells")
 				.project(0);
+
+		// If requested, remove duplicate attribute groups.
+		if (this.parameters.isUseDistinctAttributeGroups) {
+			attributeGroups = attributeGroups
+					.map(new ConvertIntArrayToString()).name("Encode attribute groups as Base64")
+					.distinct()
+					.map(new CovertStringToIntArray()).name("Decode attribute groups from Base64");
+		}
 
 		// Create IND evidences from the attribute groups.
 		DataSet<Tuple2<Integer, int[]>> indEvidences = attributeGroups.flatMap(new CreateIndEvidences());
@@ -220,5 +224,8 @@ public class Sindy {
 
 		@Parameter(names = "--executor", description = "<host name>:<port> of the Flink cluster")
 		public String executor = null;
+
+		@Parameter(names = "--distinct-attribute-groups", description = "whether to use only distinct attribute groups")
+		public boolean isUseDistinctAttributeGroups = false;
 	}
 }
