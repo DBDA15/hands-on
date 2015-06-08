@@ -78,6 +78,14 @@ public class Sindy {
 				.name("Merge cells")
 				.project(0);
 
+		// If requested, remove duplicate attribute groups.
+		if (this.parameters.isUseDistinctAttributeGroups) {
+			attributeGroups = attributeGroups
+					.map(new ConvertIntArrayToString()).name("Encode attribute groups as Base64")
+					.distinct()
+					.map(new CovertStringToIntArray()).name("Decode attribute groups from Base64");
+		}
+
 		// Create IND evidences from the attribute groups.
 		DataSet<Tuple2<Integer, int[]>> indEvidences = attributeGroups.flatMap(new CreateIndEvidences());
 
@@ -232,5 +240,7 @@ public class Sindy {
 		@Parameter(names = "--executor", description = "<host name>:<port> of the Flink cluster")
 		public String executor = null;
 
+		@Parameter(names = "--distinct-attribute-groups", description = "whether to use only distinct attribute groups")
+		public boolean isUseDistinctAttributeGroups = false;
 	}
 }
