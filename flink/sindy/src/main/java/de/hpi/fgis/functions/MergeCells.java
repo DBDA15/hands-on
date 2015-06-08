@@ -14,8 +14,6 @@ import org.apache.flink.util.Collector;
  * @author sebastian.kruse
  * @since 05.06.2015
  */
-@RichGroupReduceFunction.Combinable
-@FunctionAnnotation.ConstantFields("1")
 public class MergeCells extends RichGroupReduceFunction<Tuple2<int[], String>, Tuple2<int[], String>> {
 
 	private final IntSortedSet aggregator = new IntRBTreeSet();
