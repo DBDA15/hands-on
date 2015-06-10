@@ -56,10 +56,7 @@ To initiaize and configure an EC2 cluster from a Unix shell (such as bash), proc
 
  1. Clone repository and install Apache Maven and Flink
     ``` sh
-    git clone -b ec2 https://github.com/DBDA15/hands-on.git
-    . hands-on/install_mvn.sh
-    . hands-on/install_flink.sh
-    . hands-on/tag_cluster.sh
+    git clone -b ec2 https://github.com/DBDA15/hands-on.git && . install.sh
     ```
 
 ## Running experiments
