@@ -4,7 +4,7 @@ SINDY
 This example program finds unary inclusion dependencies within given CSV files using Apache Flink.
 
 Execute it with:
-`java -cp <...> -Dlog4j.properties=<URL to log4j.properties> [-Djava.rmi.server.hostname=<driver name/IP>] de.hpi.fgis.Sindy <URL pattern to input files> [--executor <host name>:<port> --jars <Sindy, fastutil, and JCommander jar or fatjar>] [--parallelism <number>] [--distinct-attribute-groups]` 
+`java -cp <...> -Dlog4j.configuration=<URL! to log4j.properties> [-Djava.rmi.server.hostname=<driver name/IP>] de.hpi.fgis.Sindy <URL pattern to input files> [--executor <host name>:<port> --jars <Sindy, fastutil, and JCommander jar or fatjar>] [--parallelism <number>] [--distinct-attribute-groups]` 
 
 Explanation of parameters:
 *   `-cp` is the class path that should include all the libraries mentioned in the `pom.xml`
