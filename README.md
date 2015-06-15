@@ -92,7 +92,21 @@ Run the experiment
     $FLINK_DIR/bin/flink run --parallelism [cores] --class de.hpi.fgis.tpch.Q3 -m $MASTER:6123 target/tpch-task_java7-0.0.1-SNAPSHOT.jar hdfs://$MASTER:9000/lineitem.tbl hdfs://$MASTER:9000/orders.tbl hdfs://$MASTER:9000/flink/hands-on
     ```
 
-## Shutdown cluster
-``` sh
-~/spark/ec2/spark-ec2 --region=[region] destroy [clusterName]
-```
+## Stop/Restart/Shutdown cluster
+ 1. To stop a running EC2 cluster (similar to hibernation) from a Unix shell (local machine) execute:
+
+    ``` sh
+    ~/spark/ec2/spark-ec2 --region=[region] stop [clusterName]
+    ```
+
+ 1. To restart a stopped EC2 cluster (waking up from hibernate) from a Unix shell (local machine) execute:
+
+    ``` sh
+    ~/spark/ec2/spark-ec2 --region=[region] start [clusterName]
+    ```
+
+ 1. To kill a running EC2 cluster from a Unix shell (local machine) execute: 
+
+    ``` sh
+    ~/spark/ec2/spark-ec2 --region=[region] destroy [clusterName]
+    ```
