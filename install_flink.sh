@@ -85,10 +85,10 @@ export PATH=$PATH:$tmp
 
 echo "export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" >> ~/.bashrc
 echo "export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" >> ~/.bashrc
-echo "export MASTER=$MASTER" >> ~/.bashrc
 echo "export HADOOP_DIR=$HADOOP_DIR" >> ~/.bashrc
 echo "export SPARK_DIR=$SPARK_DIR" >> ~/.bashrc
 echo "export FLINK_DIR=$FLINK_DIR" >> ~/.bashrc
+echo "export MASTER=\`cat \$SPARK_DIR-ec2/masters\`" >> ~/.bashrc
 echo "export PATH=\$PATH:$tmp" >> ~/.bashrc
 
 # final message
