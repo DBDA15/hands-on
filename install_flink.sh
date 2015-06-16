@@ -43,8 +43,8 @@ MEMORY=`grep spark.executor.memory $SPARK_DIR/conf/spark-defaults.conf | cut -f 
 
 echo "changing cluser config ($SLAVES slaves /w $WORKER_CORES cores and $MEMORY MB RAM) ..."
 
-# copy slave definition
-rm -f $FLINK_DIR/conf/slaves && cp -n $SPARK_DIR/conf/slaves $FLINK_DIR/conf/slaves
+# link to spark slave definition
+rm -f $FLINK_DIR/conf/slaves && ln -s $SPARK_DIR/conf/slaves $FLINK_DIR/conf/slaves
 
 # remove default value to be changed
 FLINK_CONF=$FLINK_DIR/conf/flink-conf.yaml
