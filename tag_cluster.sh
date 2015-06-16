@@ -1,5 +1,8 @@
 #! /bin/bash
 
+echo upgrading AWS CLI ...
+easy_install --upgrade awscli
+
 echo Tagging custer ...
 # get master instance id
 rm -f instance_id
@@ -22,7 +25,6 @@ cp instance_ids resource_ids
 
 # tag attached ebs volumes
 INSTANCE_FILTER=`echo '"'$INSTANCES'"' | awk '{$1=$1}1' OFS="\",\"" | awk '{printf "[{\"Name\":\"attachment.instance-id\",\"Values\":[%s]}]",$1}'`
-#aws ec2 describe-volumes --region $REGION --filters $INSTANCE_FILTER | grep "VolumeId" | cut -d':' -f 2 | cut -d'"' -f 2
 aws ec2 describe-volumes --region $REGION --filters $INSTANCE_FILTER | grep "VolumeId" | cut -d':' -f 2 | cut -d'"' -f 2 | awk '{printf " %s",$0} END {print ""}' >> resource_ids
 
 # tag all instances and volumes
