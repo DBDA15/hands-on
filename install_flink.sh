@@ -75,7 +75,8 @@ echo "creating startup scripts ..."
 tmp=~/bin
 mkdir $tmp 2>/dev/null
 echo -e "#! /bin/bash\n$HADOOP_DIR/bin/stop-all.sh\n$FLINK_DIR/bin/stop-cluster.sh" > $tmp/stop-flink.sh
-echo -e "#! /bin/bash\n$HADOOP_DIR/bin/start-all.sh\n$FLINK_DIR/bin/start-cluster.sh" > $tmp/start-flink.sh
+ && [ \"\$MASTER\" != \"\`grep 'jobmanager.rpc.address' $FLINK_CONF | cut -d' ' -f 2\`\" ]
+echo -e "#! /bin/bash\nif [ -n \"\$MASTER\" ] && [ \"\$MASTER\" != \"\`grep 'jobmanager.rpc.address' $FLINK_CONF | cut -d' ' -f 2\`\" ] ; then\n mv -f $FLINK_CONF $FLINK_CONF.bkp2 && sed '/jobmanager.rpc.address/d' $FLINK_CONF.bkp2 > $FLINK_CONF && echo jobmanager.rpc.address: \$MASTER >> $FLINK_CONF && $SPARK_DIR-ec2/copy-dir $FLINK_DIR/conf ;\nfi\n\n$HADOOP_DIR/bin/start-all.sh\n$FLINK_DIR/bin/start-cluster.sh" > $tmp/start-flink.sh
 echo -e "#! /bin/bash\n$tmp/stop-spark.sh\n$tmp/start-flink.sh" > $tmp/init-flink.sh
 echo -e "#! /bin/bash\n$HADOOP_DIR/bin/stop-all.sh\n$SPARK_DIR/sbin/stop-all.sh" > $tmp/stop-spark.sh
 echo -e "#! /bin/bash\n$HADOOP_DIR/bin/start-all.sh\n$SPARK_DIR/sbin/start-all.sh" > $tmp/start-spark.sh
