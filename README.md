@@ -102,7 +102,7 @@ Run the experiment
  1. To restart a stopped EC2 cluster (waking up from hibernate) from a Unix shell (local machine) execute:
 
     ``` sh
-    ~/spark/ec2/spark-ec2 -i [pathToPemFile] --region=[region] start [clusterName]
+    ~/spark/ec2/spark-ec2 -i [pathToPemFile] --region=[region] --copy-aws-credentials start [clusterName]
     ```
 
  1. To kill a running EC2 cluster from a Unix shell (local machine) execute: 
