@@ -42,7 +42,7 @@ To initiaize and configure an EC2 cluster from a Unix shell (such as bash), proc
     ```
     Spark standalone cluster started at http://[master]:8080
     ```
- keep the address of the master node (`[master]`)
+ keep the address of the master node (`[master]`). You might use the parameter `--ebs-vol-size=[ebsDiskSize]` to increase the disk size of the cluster nodes (the value `[ebsDiskSize]` corresponds to the disk size of each node in *GiB*).
 
  1. Connect to the EC2 master node
     ``` sh
