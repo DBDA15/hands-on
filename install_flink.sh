@@ -18,7 +18,7 @@ SPARK_DIR=${SPARK_DIR:-"/root/spark"}
 read -p "Please enter the path to Spark home (default: $SPARK_DIR): " input;
 export SPARK_DIR=${input:-$SPARK_DIR}
 
-FLINK_BINARY_URL="http://www.eu.apache.org/dist/flink/flink-0.9.0-milestone-1/flink-0.9.0-milestone-1-bin-hadoop1.tgz"
+FLINK_BINARY_URL="http://www.eu.apache.org/dist/flink/flink-0.9.0/flink-0.9.0-bin-hadoop1.tgz"
 read -p "Please enter the URL to the Flink binaries (default: $FLINK_BINARY_URL): " input;
 FLINK_BINARY_URL=${input:-$FLINK_BINARY_URL}
 
