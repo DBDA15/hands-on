@@ -10,5 +10,6 @@ export PATH=$M2:$PATH
 echo "export M2_HOME=$M2_HOME" >> ~/.bashrc
 echo "export M2=\$M2_HOME/bin" >> ~/.bashrc
 echo "export PATH=\$M2:\$PATH" >> ~/.bashrc
+echo -e "if [ -f \"\$HOME/.bashrc\" ]; then\n  source \"\$HOME/.bashrc\"\nfi" >> ~/.bash_profile
 echo done!
 
